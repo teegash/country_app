@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Country, subcounty, Sub-subcounty, Location, and Sub-Location</title>
+</head>
+<body>
+    <form method="POST">
+        {% csrf_token %}
+        <input type="text" name="country" placeholder="Country Name">
+        <input type="text" name="county" placeholder="Subcounty Name">
+        <input type="text" name="subcounty" placeholder="Sub-county Name">
+        <input type="text" name="locationplace" placeholder="Location Name">
+        <input type="text" name="sublocation" placeholder="Sub-Location Name">
+        <input type="submit" value="Add">
+    </form>
+</body>
+</html>

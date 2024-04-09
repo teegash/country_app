@@ -1,0 +1,86 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Location Selector</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="{% static "dist/css/b.css" %}">
+</head>
+<body>
+    <div class="container">
+    <select id="location_type">
+        <option value="">Select a location type</option>
+        <option value="country">Country</option>
+        <option value="county">County</option>
+        <option value="subcounty">subcounty</option>
+        <option value="locationplace">Location</option>
+        <option value="sublocation">Sublocation</option>
+    </select>
+    <select id="location">
+        <!-- Options will be populated here based on the selection in the location_type dropdown -->
+    </select>
+    <button id="submit">Submit</button>
+    <div id="result"></div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#location_type').change(function() {
+                var location_type = $(this).val();
+                var url = "{% url 'load_locations' %}";
+                
+                // populates the dropdown menu
+                $.ajax({
+                    url: url,
+                    data: {
+                        'location_type': location_type
+                    },
+                    success: function(data) {
+                        var options = '<option value="">Select a ' + location_type + '</option>';
+                        for (var i = 0; i < data.length; i++) {
+                            options += '<option value="' + data[i].id + '">' + data[i].name + '</option>';
+                        }
+                        $('#location').html(options);
+                    }
+                });
+            });
+
+            //$('#submit').click(function() {
+              //  var location_type = $('#location_type').val();
+               // var location_name = $('#location option:selected').text();
+             //   $('#result').html('You have selected ' + location_name + ' which is a ' + location_type);
+           // });
+
+           // Fetches data to display
+            $('#submit').click(function() {
+                var location_type = $('#location_type').val();
+                var location_id = $('#location').val();
+                var url = "{% url 'get_location_data' %}";
+
+                $.ajax({
+                    url: url,
+                    data: {
+                        'location_type': location_type,
+                        'location_id': location_id
+                    },
+                    success: function(data) {
+                        var result = 'This ' + location_type + ' is ';
+                        if (location_type == 'sublocation') {
+                            result += 'in location ' + data.locationplace + ' situated in ' + data.subcounty + ' subcounty which is in ' + data.county + ' county which is in our country ' + data.country + '.';
+                        } else if (location_type == 'locationplace') {
+                            result += 'in subcounty ' + data.subcounty + ' which is in the well known ' + data.county + ' county in our country ' + data.country + '.';
+                        } else if (location_type == 'subcounty') {
+                            result += ' in ' + data.county + ' county which is in ' + data.country + '.';
+                        } else if (location_type == 'county') {
+                            result += ' in our wonderful motherland ' + data.country + '.';
+                        } else if (location_type == 'country') {
+                            result += data.country + '.';
+                        }
+                        $('#result').html(result);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
