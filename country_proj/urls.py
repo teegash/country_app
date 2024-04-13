@@ -21,6 +21,6 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('add/', views.add, name='add'),
     path('load_locations/', views.load_locations, name='load_locations'),
-    path('get_location_data/', views.get_location_data, name='get_location_data')
+    path('load_locations2/', views.load_locations2, name='load_locations2'),
     ]
 

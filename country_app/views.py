@@ -7,6 +7,7 @@ from .models import Country, County, Subcounty, Locationplace, Sublocation
 def home(request):
     return render(request, 'home.html')
 
+
 # loads locations
 def load_locations(request):
     location_type = request.GET.get('location_type')
@@ -25,30 +26,26 @@ def load_locations(request):
         
     return JsonResponse(locations, safe=False)
 
-# gets location data from database
-def get_location_data(request):
+def load_locations2(request):
     location_type = request.GET.get('location_type')
     location_id = request.GET.get('location_id')
 
-    if location_type == 'country':
-        location = Country.objects.get(id=location_id)
-        data = {'name': location.name, 'country': location.name}
-    elif location_type == 'county':
-        location = County.objects.get(id=location_id)
-        data = {'name': location.name, 'country': location.country.name}
+    if location_type == 'county':
+        locations = list(County.objects.filter(country_id=location_id).values())
     elif location_type == 'subcounty':
-        location = Subcounty.objects.get(id=location_id)
-        data = {'name': location.name, 'county': location.county.name, 'country': location.county.country.name}
+        locations = list(Subcounty.objects.filter(county_id=location_id).values())
     elif location_type == 'locationplace':
-        location = Locationplace.objects.get(id=location_id)
-        data = {'name': location.name, 'subcounty': location.subcounty.name, 'county': location.subcounty.county.name, 'country': location.subcounty.county.country.name}
+        subcounty_ids = Subcounty.objects.filter(county_id=location_id).values_list('id', flat=True)
+        locations = list(Locationplace.objects.filter(subcounty_id__in=subcounty_ids).values())
     elif location_type == 'sublocation':
-        location = Sublocation.objects.get(id=location_id)
-        data = {'name': location.name, 'locationplace': location.locationplace.name, 'subcounty': location.locationplace.subcounty.name, 'county': location.locationplace.subcounty.county.name, 'country': location.locationplace.subcounty.county.country.name}
+        locationplace_ids = Locationplace.objects.filter(subcounty__county_id=location_id).values_list('id', flat=True)
+        locations = list(Sublocation.objects.filter(locationplace_id__in=locationplace_ids).values())
     else:
-        data = {}
+        locations = []
 
-    return JsonResponse(data)
+    return JsonResponse(locations, safe=False)
+
+
 
 # adds country, county, subcounty, locationplace, and sublocation
 def add(request):

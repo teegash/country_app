@@ -17,7 +17,13 @@
         <option value="sublocation">Sublocation</option>
     </select>
     <select id="location">
-        <!-- Options will be populated here based on the selection in the location_type dropdown -->
+    </select>
+    <select id="child_location_type">
+        <option value="">Specify location type</option>
+        <option value="county">County</option>
+        <option value="subcounty">subcounty</option>
+        <option value="locationplace">Location</option>
+        <option value="sublocation">Sublocation</option>
     </select>
     <button id="submit">Submit</button>
     <div id="result"></div>
@@ -44,43 +50,31 @@
                     }
                 });
             });
-
-            //$('#submit').click(function() {
-              //  var location_type = $('#location_type').val();
-               // var location_name = $('#location option:selected').text();
-             //   $('#result').html('You have selected ' + location_name + ' which is a ' + location_type);
-           // });
-
-           // Fetches data to display
+        
+            // Fetches data to display
             $('#submit').click(function() {
-                var location_type = $('#location_type').val();
+                var location_type = $('#child_location_type').val();
                 var location_id = $('#location').val();
-                var url = "{% url 'get_location_data' %}";
-
+                var url = "{% url 'load_locations2' %}";
+        
                 $.ajax({
                     url: url,
                     data: {
                         'location_type': location_type,
-                        'location_id': location_id
+                        'location_id': $('#location').val()
                     },
                     success: function(data) {
-                        var result = 'This ' + location_type + ' is ';
-                        if (location_type == 'sublocation') {
-                            result += 'in location ' + data.locationplace + ' situated in ' + data.subcounty + ' subcounty which is in ' + data.county + ' county which is in our country ' + data.country + '.';
-                        } else if (location_type == 'locationplace') {
-                            result += 'in subcounty ' + data.subcounty + ' which is in the well known ' + data.county + ' county in our country ' + data.country + '.';
-                        } else if (location_type == 'subcounty') {
-                            result += ' in ' + data.county + ' county which is in ' + data.country + '.';
-                        } else if (location_type == 'county') {
-                            result += ' in our wonderful motherland ' + data.country + '.';
-                        } else if (location_type == 'country') {
-                            result += data.country + '.';
+                        var result = 'The ' + location_type + 's in this ' + $('#location option:selected').text() + ' are: ';
+                        for (var i = 0; i < data.length; i++) {
+                            result += data[i].name + ', ';
                         }
+                        result = result.slice(0, -2) + '.';
                         $('#result').html(result);
                     }
                 });
             });
         });
+        
     </script>
 </body>
 </html>
