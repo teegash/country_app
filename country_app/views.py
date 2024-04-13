@@ -31,9 +31,11 @@ def load_locations2(request):
     location_id = request.GET.get('location_id')
 
     if location_type == 'county':
-        locations = list(County.objects.filter(country_id=location_id).values())
+        country_ids = Country.objects.values_list('id', flat=True)
+        locations = list(County.objects.filter(country_id=country_ids).values())
     elif location_type == 'subcounty':
-        locations = list(Subcounty.objects.filter(county_id=location_id).values())
+        county_ids = County.objects.filter(country_id=location_id).values_list('id', flat=True)
+        locations = list(Subcounty.objects.filter(county_id=county_ids).values())
     elif location_type == 'locationplace':
         subcounty_ids = Subcounty.objects.filter(county_id=location_id).values_list('id', flat=True)
         locations = list(Locationplace.objects.filter(subcounty_id__in=subcounty_ids).values())
